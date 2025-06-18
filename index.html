@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!--     <title>灵动岛人际关系编码系统</title> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 90px 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        /* 灵动岛风格浮动编码 */
+        .dynamic-island {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 10px 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 180px;
+            max-width: 85%;
+            height: 50px;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+        }
+        
+        .island-content {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+        
+        .code-display {
+            font-size: 1.15rem;
+            font-weight: 600;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            letter-spacing: 1px;
+            color: #f8fafc;
+            margin: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .island-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .island-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(71, 85, 105, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .island-btn:hover {
+            background: rgba(100, 116, 139, 0.8);
+            transform: scale(1.1);
+        }
+        
+        .island-btn.copy {
+            background: rgba(56, 189, 248, 0.2);
+        }
+        
+        .island-btn.copy:hover {
+            background: rgba(56, 189, 248, 0.3);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 24px;
+            padding: 25px 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        h1 {
+            font-size: 1.7rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        
+        .dimension {
+            margin-bottom: 22px;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .dimension-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+            gap: 14px;
+        }
+        
+        .dimension-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.15);
+        }
+        
+        .dimension-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        
+        .dimension-desc {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+        
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            padding: 12px 18px;
+            border-radius: 18px;
+            background: rgba(30, 41, 59, 0.8);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            user-select: none;
+            flex-grow: 1;
+            text-align: center;
+            min-width: 70px;
+            color: #e2e8f0;
+        }
+        
+        .tag:hover {
+            background: rgba(51, 65, 85, 0.8);
+            transform: translateY(-2px);
+        }
+        
+        .tag.selected {
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 15px rgba(56, 189, 248, 0.25);
+        }
+        
+        .impact-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 8px;
+        }
+        
+        .impact-group {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .impact-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        
+        .positive .impact-title {
+            color: #34d399;
+        }
+        
+        .negative .impact-title {
+            color: #f87171;
+        }
+        
+        .positive .tag.selected {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            box-shadow: 0 6px 15px rgba(52, 211, 153, 0.25);
+        }
+        
+        .negative .tag.selected {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            box-shadow: 0 6px 15px rgba(248, 113, 113, 0.25);
+        }
+        
+        .explanation {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 20px;
+            padding: 22px;
+            margin-top: 20px;
+            border-left: 3px solid #38bdf8;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .explanation-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .explanation-content {
+            line-height: 1.65;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+        
+        .dimension-value {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin: 0 3px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 380px) {
+            .dynamic-island {
+                padding: 10px 16px;
+                height: 46px;
+            }
+            
+            .code-display {
+                font-size: 1rem;
+            }
+            
+            .tag {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+                min-width: 65px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 灵动岛风格浮动编码 -->
+    <div class="dynamic-island">
+        <div class="island-content">
+            <div class="code-display" id="dynamicCode">F7E7I4P8N0</div>
+        </div>
+        <div class="island-actions">
+            <button class="island-btn copy" id="copyBtn">
+                <i class="fas fa-copy"></i>
+            </button>
+            <button class="island-btn" id="infoBtn">
+                <i class="fas fa-info"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-network-wired"></i> 人际关系编码</h1>
+            <p class="subtitle">灵动岛风格 · 高级关系分析系统</p>
+        </header>
+        
+        <!-- 关系类别 -->
+        <div class="dimension">
+            <div class="dimension-header">
+                <div class="dimension-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="dimension-title">关系类别</div>
+            </div>
+            <div class="dimension-desc">选择关系类型和亲密程度</div>
+            
+            <div class="tag-selector" id="relation-type">
+                <div class="tag selected" data-value="F">家人</div>
+                <div class="tag" data-value="R">朋友</div>
+                <div class="tag" data-value="C">同事</div>
+                <div class="tag" data-value="O">其他</div>
+            </div>
+            
+            <div class="tag-selector" id="relation-strength">
+                <div class="tag" data-value="3">疏远</div>
+                <div class="tag" data-value="4">一般</div>
+                <div class="tag selected" data-value="7">亲密</div>
+                <div class="tag" data-value="9">极亲密</div>
+            </div>
+        </div>
+        
+        <!-- 主要性格 -->
+        <div class="dimension">
+            <div class="dimension-header">
+                <div class="dimension-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="dimension-title">主要性格</div>
+            </div>
+            <div class="dimension-desc">选择最显著的性格特征</div>
+            
+            <div class="tag-selector" id="main-personality">
+                <div class="tag selected" data-value="E">外向</div>
+                <div class="tag" data-value="I">内向</div>
+                <div class="tag" data-value="T">理性</div>
+                <div class="tag" data-value="F">感性</div>
+            </div>
+            
+            <div class="tag-selector" id="main-strength">
+                <div class="tag" data-value="4">较弱</div>
+                <div class="tag" data-value="5">中等</div>
+                <div class="tag selected" data-value="7">强</div>
+                <div class="tag" data-value="8">很强</div>
+            </div>
+        </div>
+        
+        <!-- 次要性格 -->
+        <div class="dimension">
+            <div class="dimension-header">
+                <div class="dimension-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="dimension-title">次要性格</div>
+            </div>
+            <div class="dimension-desc">选择次要的性格特征</div>
+            
+            <div class="tag-selector" id="sub-personality">
+                <div class="tag" data-value="E">外向</div>
+                <div class="tag selected" data-value="I">内向</div>
+                <div class="tag" data-value="T">理性</div>
+                <div class="tag" data-value="F">感性</div>
+            </div>
+            
+            <div class="tag-selector" id="sub-strength">
+                <div class="tag" data-value="3">弱</div>
+                <div class="tag selected" data-value="4">偏弱</div>
+                <div class="tag" data-value="5">中等</div>
+                <div class="tag" data-value="6">偏强</div>
+            </div>
+        </div>
+        
+        <!-- 影响值 -->
+        <div class="impact-tags">
+            <div class="impact-group positive">
+                <div class="impact-title">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>正面影响</span>
+                </div>
+                <div class="tag-selector" id="positive-impact">
+                    <div class="tag" data-value="4">一般</div>
+                    <div class="tag" data-value="6">较好</div>
+                    <div class="tag selected" data-value="8">很好</div>
+                    <div class="tag" data-value="9">极好</div>
+                </div>
+            </div>
+            
+            <div class="impact-group negative">
+                <div class="impact-title">
+                    <i class="fas fa-thumbs-down"></i>
+                    <span>负面影响</span>
+                </div>
+                <div class="tag-selector" id="negative-impact">
+                    <div class="tag selected" data-value="0">无</div>
+                    <div class="tag" data-value="1">很小</div>
+                    <div class="tag" data-value="2">较小</div>
+                    <div class="tag" data-value="3">有一些</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <div class="explanation-title">
+                <i class="fas fa-info-circle"></i>
+                <span>编码说明</span>
+            </div>
+            <div class="explanation-content" id="codeExplanation">
+                当前编码表示：<span class="dimension-value">家人</span>关系（亲密程度<span class="dimension-value">7</span>），
+                主要性格为<span class="dimension-value">外向</span>（强度<span class="dimension-value">7</span>），
+                次要性格为<span class="dimension-value">内向</span>（强度<span class="dimension-value">4</span>），
+                正面影响程度<span class="dimension-value">8</span>，
+                负面影响程度<span class="dimension-value">0</span>。
+            </div>
+        </div>
+        
+<!--         <div class="footer">
+            <p>人际关系编码系统 v3.0 · 灵动岛版</p>
+        </div> -->
+    </div>
+
+    <script>
+        // 初始化数据
+        const state = {
+            relationType: 'F',
+            relationStrength: '7',
+            mainPersonality: 'E',
+            mainStrength: '7',
+            subPersonality: 'I',
+            subStrength: '4',
+            positiveImpact: '8',
+            negativeImpact: '0'
+        };
+        
+        // 映射关系
+        const relationTypeMap = {
+            'F': '家人',
+            'R': '朋友',
+            'C': '同事',
+            'O': '其他'
+        };
+        
+        const personalityMap = {
+            'E': '外向',
+            'I': '内向',
+            'T': '理性',
+            'F': '感性'
+        };
+        
+        const strengthMap = {
+            '0': '无',
+            '1': '微弱',
+            '2': '较弱',
+            '3': '弱',
+            '4': '偏弱',
+            '5': '中等',
+            '6': '偏强',
+            '7': '强',
+            '8': '很强',
+            '9': '极强'
+        };
+        
+        const impactMap = {
+            '0': '无',
+            '1': '很小',
+            '2': '较小',
+            '3': '有一些',
+            '4': '一般',
+            '5': '中等',
+            '6': '较好',
+            '7': '好',
+            '8': '很好',
+            '9': '极好'
+        };
+        
+        // 更新编码结果
+        function updateCode() {
+            const code = `${state.relationType}${state.relationStrength}${state.mainPersonality}${state.mainStrength}${state.subPersonality}${state.subStrength}P${state.positiveImpact}N${state.negativeImpact}`;
+            
+            // 更新浮动编码
+            document.getElementById('dynamicCode').textContent = code;
+            
+            // 更新解释
+            const explanation = `
+                当前编码表示：<span class="dimension-value">${relationTypeMap[state.relationType]}</span>关系（亲密程度<span class="dimension-value">${state.relationStrength}</span>），
+                主要性格为<span class="dimension-value">${personalityMap[state.mainPersonality]}</span>（强度<span class="dimension-value">${state.mainStrength}</span>），
+                次要性格为<span class="dimension-value">${personalityMap[state.subPersonality]}</span>（强度<span class="dimension-value">${state.subStrength}</span>），
+                正面影响程度<span class="dimension-value">${state.positiveImpact}</span>，
+                负面影响程度<span class="dimension-value">${state.negativeImpact}</span>。
+            `;
+            document.getElementById('codeExplanation').innerHTML = explanation;
+        }
+        
+        // 标签选择功能
+        function setupTagSelectors() {
+            // 关系类型
+            setupTagGroup('relation-type', 'relationType');
+            setupTagGroup('relation-strength', 'relationStrength');
+            setupTagGroup('main-personality', 'mainPersonality');
+            setupTagGroup('main-strength', 'mainStrength');
+            setupTagGroup('sub-personality', 'subPersonality');
+            setupTagGroup('sub-strength', 'subStrength');
+            setupTagGroup('positive-impact', 'positiveImpact');
+            setupTagGroup('negative-impact', 'negativeImpact');
+        }
+        
+        function setupTagGroup(groupId, stateKey) {
+            const container = document.getElementById(groupId);
+            const tags = container.querySelectorAll('.tag');
+            
+            tags.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    // 移除同组其他标签的选中状态
+                    tags.forEach(t => t.classList.remove('selected'));
+                    
+                    // 设置当前标签为选中状态
+                    tag.classList.add('selected');
+                    
+                    // 更新状态
+                    state[stateKey] = tag.dataset.value;
+                    
+                    // 更新编码
+                    updateCode();
+                    
+                    // 添加灵动岛动画
+                    animateIsland();
+                });
+            });
+        }
+        
+        // 灵动岛动画效果
+        function animateIsland() {
+            const island = document.querySelector('.dynamic-island');
+            island.style.transform = 'translateX(-50%) scale(1.05)';
+            
+            setTimeout(() => {
+                island.style.transform = 'translateX(-50%)';
+            }, 300);
+        }
+        
+        // 复制功能
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const code = document.getElementById('dynamicCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 1500);
+            });
+        });
+        
+        // 信息按钮功能
+        document.getElementById('infoBtn').addEventListener('click', () => {
+            alert("人际关系编码系统\n\n格式: [关系][亲密][主性格][强度][次性格][强度]P[正面]N[负面]\n\n示例: F7E7I4P8N0 = 家人(亲密7), 外向(强7), 内向(偏弱4), 正面影响8, 负面影响0");
+        });
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTagSelectors();
+            updateCode();
+        });
+    </script>
+</body>
+</html>
